@@ -1,0 +1,100 @@
+using System;
+namespace crad
+{
+	class CreditCard
+	{
+		private int money;
+		private string repaymentDate;
+		public void setMoney()
+		{
+			Console.Write("本月还款金额:");
+			int money = Convert.ToInt32(Console.ReadLine());
+			this.money = money;
+		}
+		public int getMOney()
+		{
+			return money;
+		}
+		public void setRepaymentDate()
+		{
+			Console.Write("还款日为:");
+			string repaymentDate = Console.ReadLine();
+			this.repaymentDate = repaymentDate;
+		}
+		public string getRepayment()
+		{
+			return repaymentDate;
+		}
+		public void repayment(Bank bank, BankCard bankCard)
+		{
+			Console.WriteLine("还款日是{0},此次需还款金额:{1}元，请还款。", this.repaymentDate, this.money);
+			int balance = bankCard.getBalance();
+			balance -= this.money;
+			bankCard.setBalance(balance);
+			while (balance < 0)
+			{
+				Console.WriteLine("当前余额为：{0}，余额不足，请充值！", balance);
+				bankCard.setBalance(bank);
+				balance = bankCard.getBalance();
+			}
+			Console.WriteLine("还款成功，余额：{0}", balance);
+		}
+
+	}
+	class BankCard
+	{
+
+		private int balance;
+		public void setBalance(Bank bank)
+		{
+			int add = bank.add();
+			this.balance += add;
+		}
+		public void setBalance(int banlance)
+		{
+			this.balance = banlance;
+
+		}
+		public int getBalance()
+		{
+			return balance;
+		}
+	}
+	class Bank
+	{
+		public int add()
+		{
+			Console.Write("请输入充值金额:");
+			int addMoney = Convert.ToInt32(Console.ReadLine());
+			Console.WriteLine("缴纳金额{0}元", addMoney);
+			return addMoney;
+		}
+	}
+
+	class AP
+	{
+		public delegate void delegateAP(Bank bank, BankCard bancard);
+		public event delegateAP eventAP;
+		public void auto(Bank bank, BankCard bankCard)
+		{
+			if (eventAP != null)
+			{
+				eventAP(bank, bankCard);
+			}
+		}
+	}
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			AP objDelegate = new AP();
+			Bank bank = new Bank();
+			BankCard bankCard = new BankCard();
+			CreditCard creditCard = new CreditCard();
+			creditCard.setMoney();
+			creditCard.setRepaymentDate();
+			objDelegate.eventAP += new AP.delegateAP(creditCard.repayment);
+			objDelegate.auto(bank, bankCard);
+		}
+	}
+}
